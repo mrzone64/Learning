@@ -13,13 +13,6 @@ def ishealthy(x):
     if x > 18.5 and x < 24.9:
         return True
 
-#Takes input from user
-#height = int(input("Height:"))
-#weight = int(input("Weight:"))
-
-#bmi gets calculated
-#bmi = weight / square(convert(height))
-
 def calcbmi():
     try:
         print("Sander sin bmi calc!")
@@ -31,13 +24,17 @@ def calcbmi():
         print("Thats not a number!")
         calcbmi()
 
-bmi = calcbmi()
+def programstart():
+    #Call func to get bmi data from user and store it as bmi
+    bmi = calcbmi()
 
-#output bmi with 2 decimals
-print("Your bmi is: " + str(bmi))
+    #Print the bmi
+    print("Your bmi is: " + str(bmi))
 
-#Healthy or not?
-if ishealthy(bmi):
-    print("Thats healthy!")
-else:
-    print("Not Healthy!")
+#Check if bmi is within the healthy ranges and print the result
+    if bmi > 18.5 and bmi < 24.9:
+        print("Thats healthy!")
+    else:
+        print("Not Healthy!")
+
+programstart()
