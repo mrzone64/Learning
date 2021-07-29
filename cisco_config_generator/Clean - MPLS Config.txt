@@ -1,0 +1,316 @@
+hostname XXX-XXX-XXX-XXX
+
+
+Vlan 10 
+name Managment
+
+Vlan 11
+name Shared-Services
+
+Vlan 12
+name Corporate
+
+Vlan 13
+name GUEST
+
+Vlan 14
+name VD_Mobile
+
+Vlan 120
+name SCALEIT
+
+Vlan 123
+name SECOMEA
+
+interface vlan 10
+description ### Managment ###
+ip address 10.101.x.x 255.255.x.x
+ip helper-address 10.96.1.52
+ip helper-address 10.96.0.22
+ip policy route-map MANAGMENT
+no autostate
+
+interface vlan 11
+description ### Shared-Services ###
+ip address 10.102.x.x 255.255.x.x
+ip helper-address 10.96.1.52
+ip helper-address 10.96.0.22
+no autostate
+
+interface vlan 12
+description ### Corporate ###
+ip address 10.104.x.x 255.255.x.x
+ip access-group CORP in
+ip helper-address 10.96.1.52
+ip helper-address 10.96.0.22
+ip helper-address 10.96.32.26
+ip policy route-map CORPORATE
+no autostate
+
+interface vlan 13
+description ### Guest ###
+ip address 10.100.x.x 255.255.x.x
+ip access-group GUEST in 
+ip helper-address 10.100.1.52
+no autostate
+
+interface vlan 14
+description ### VD-Mobile ###
+ip address 10.103.x.x 255.255.x.x
+ip access-group MOBILE in
+ip helper-address 10.100.1.52
+no autostate
+
+interface Vlan120
+ description ### Vendor ScaleIT ###
+ ip address 10.120.x.x 255.255.x.x
+ ip access-group SCALEIT in
+ ip helper-address 10.96.16.5
+ ip helper-address 10.96.16.21
+ ip policy route-map VENDOR-ScaleIT
+ no autostate
+ 
+ interface Vlan123
+ description ### Vendor Secomea ###
+ ip address 10.123.x.x 255.255.x.x
+ ip access-group SECOMEA in
+ ip helper-address 10.96.16.5
+ ip helper-address 10.96.16.21
+ ip policy route-map VENDOR-Secomea
+ no autostate
+
+interface vlan 1
+Shutdown
+
+
+
+ip access-list extended CORP
+permit udp any any eq bootpc
+permit udp any any eq bootps
+deny ip 10.104.x.x 0.0.x.x 10.100.x.x 0.0.x.x
+deny ip 10.104.x.x 0.0.x.x 10.103.x.x 0.0.x.x
+permit ip 10.104.x.x 0.0.x.x any
+
+ip access-list extended GUEST
+permit udp any any eq bootpc
+permit udp any any eq bootps
+deny ip 10.100.x.x 0.0.x.x 10.104.x.x 0.0.x.x
+deny ip 10.100.x.x 0.0.x.x 10.103.x.x 0.0.x.x
+permit ip 10.100.x.x 0.0.x.x any
+
+ip access-list extended MOBILE
+permit udp any any eq bootpc
+permit udp any any eq bootps
+deny ip 10.103.x.x 0.0.x.x 10.104.x.x 0.0.x.x
+deny ip 10.103.x.x 0.0.x.x 10.100.x.x 0.0.x.x
+deny ip 10.103.x.x 0.0.x.x 10.102.x.x 0.0.x.x
+permit ip 10.103.x.x 0.0.x.x any
+
+ip access-list extended SCALEIT
+permit udp any any eq bootpc
+permit udp any any eq bootps
+deny ip 10.120.x.x 0.0.x.x 10.104.x.x 0.0.x.x
+deny ip 10.120.x.x 0.0.x.x 10.100.x.x 0.0.x.x
+permit ip 10.120.x.x 0.0.x.x 10.123.x.x 0.0.x.x
+permit ip 10.120.x.x 0.0.x.x any
+
+ip access-list extended SECOMEA
+permit udp any any eq bootpc
+permit udp any any eq bootps
+deny ip 10.123.x.x 0.0.x.x 10.104.x.x 0.0.x.x
+deny ip 10.123.x.x 0.0.x.x 10.100.x.x 0.0.x.x
+deny ip 10.123.x.x 0.0.x.x 10.102.x.x 0.0.x.x
+permit ip 10.123.x.x 0.0.x.x 10.120.x.x 0.0.x.x
+permit ip 10.123.x.x 0.0.x.x any
+
+ip access-list extended ROUTE-MAP-SCALEIT
+deny   ip 10.120.x.x 0.0.x.x 10.100.x.x 0.0.x.x
+deny   ip 10.120.x.x 0.0.x.x 10.101.x.x 0.0.x.x
+deny   ip 10.120.x.x 0.0.x.x 10.102.x.x 0.0.x.x
+deny   ip 10.120.x.x 0.0.x.x 10.103.x.x 0.0.x.x
+deny   ip 10.120.x.x 0.0.x.x 10.104.x.x 0.0.x.x
+permit ip 10.120.x.x 0.0.x.x any
+ 
+ip access-list extended ROUTE-MAP-SECOMEA
+deny   ip 10.123.x.x 0.0.x.x 10.100.x.x 0.0.x.x
+deny   ip 10.123.x.x 0.0.x.x 10.101.x.x 0.0.x.x
+deny   ip 10.123.x.x 0.0.x.x 10.102.x.x 0.0.x.x
+deny   ip 10.123.x.x 0.0.x.x 10.103.x.x 0.0.x.x
+deny   ip 10.123.x.x 0.0.x.x 10.104.x.x 0.0.x.x
+permit ip 10.123.x.x 0.0.x.x any
+
+ip access-list extended ROUTE-MAP-CORP
+deny ip 10.104.x.x 0.0.x.x 10.102.x.x 0.0.x.x
+deny ip 10.104.x.x 0.0.x.x 10.101.x.x 0.0.x.x
+deny ip 10.104.x.x 0.0.x.x 10.100.x.x 0.0.x.x
+deny ip 10.104.x.x 0.0.x.x 10.103.x.x 0.0.x.x
+permit ip 10.104.x.x 0.0.x.x any
+
+ip access-list extended ROUTE-MAP-MGMT
+deny ip 10.101.x.x 0.0.x.x 10.104.x.x 0.0.x.x
+deny ip 10.101.x.x 0.0.x.x 10.100.x.x 0.0.x.x
+deny ip 10.101.x.x 0.0.x.x 10.102.x.x 0.0.x.x
+deny ip 10.101.x.x 0.0.x.x 10.103.x.x 0.0.x.x
+permit ip 10.101.x.x 0.0.x.x any
+
+ip route 0.0.0.0 0.0.0.0 10.105.x.x -guestl3
+ip route 10.96.0.0 255.255.0.0 10.105.x.x -corpl3
+ip route 10.97.0.0 255.255.0.0 10.105.x.x -corpl3
+ip route 10.216.0.0 255.255.0.0 10.105.x.x -corpl3
+ip route 10.96.16.0 255.255.252.0 10.105.x.x -vendorl3
+
+ip route 10.104.0.0 255.255.0.0 10.105.x.x -corpl3
+ip route 10.108.0.0 255.255.0.0 10.105.x.x -corpl3
+ip route 10.107.0.0 255.255.0.0 10.105.x.x -corpl3
+ip route 10.102.0.0 255.255.0.0 10.105.x.x -corpl3
+ip route 10.101.0.0 255.255.0.0 10.105.x.x -corpl3
+
+route-map CORPORATE permit 10
+match ip address ROUTE-MAP-CORP
+set ip next-hop 10.105.x.x -corpl3
+
+route-map MANAGMENT permit 10
+match ip address ROUTE-MAP-MGMT
+set ip next-hop 10.105.x.x -corpl3
+
+route-map VENDOR-ScaleIT permit 10
+match ip address ROUTE-MAP-SCALEIT
+set ip next-hop 10.105.x.x -vendorl3
+
+route-map VENDOR-Secomea permit 10
+match ip address ROUTE-MAP-SECOMEA
+set ip next-hop 10.105.x.x -vendorl3
+
+
+clock timezone GMT 1 0
+clock summer-time GMT recurring last Sun Mar 2:00 last Sun Oct 3:00
+ntp server 10.96.1.48 source vlan 10 prefer 
+ntp server 10.96.1.49 source vlan 10
+
+
+aaa new-model
+aaa authentication login default local
+
+no ip domain lookup
+ip domain name REMOVED
+
+crypto key generate rsa general-keys modulus 2048
+
+ip forward-protocol nd
+ip http access-class 23
+ip http authentication local
+ip http secure-server
+
+
+snmp-server community ctsvdk RW 90
+
+snmp-server location "Site Name: , Project ID: , Address: "
+snmp-server enable traps snmp authentication linkdown linkup coldstart warmstart
+snmp-server enable traps tty
+snmp-server enable traps config
+snmp-server enable traps entity
+snmp-server enable traps hsrp
+snmp-server enable traps ike tunnel start
+snmp-server enable traps ike tunnel stop
+
+
+line con 0
+line vty 0 15
+transport input ssh
+transport output telnet ssh
+
+username REMOVED privilege 15 secret REMOVED
+enable secret REMOVED
+
+ip sla 1
+icmp-echo 10.96.1.52 source-interface Vlan10
+threshold 950
+timeout 990
+frequency 1
+history hours-of-statistics-kept 24
+history buckets-kept 60
+history enhanced interval 1800 buckets 100
+
+ip sla 2
+icmp-echo 80.232.126.26 source-interface Vlan10
+threshold 950
+timeout 990
+frequency 1
+history hours-of-statistics-kept 24
+history buckets-kept 60
+history enhanced interval 1800 buckets 100
+
+ip sla schedule 1 life forever start-time now
+ip sla schedule 2 life forever start-time now
+ip sla reaction-configuration 1 react timeout threshold-type consecutive 2 action-type trapOnly
+ip sla reaction-configuration 2 react timeout threshold-type consecutive 2 action-type trapOnly
+ip sla logging traps
+
+
+username REMOVED privilege 3 secret password
+enable secret level 3 REMOVED
+privilege exec level 3 show logging
+privilege exec level 3 show
+privilege exec level 3 show running-config 
+
+
+
+ISP 1
+
+interface GigabitEthernet 0/0/1
+no shutdown
+
+interface GigabitEthernet0/0/1.800
+encapsulation dot1Q 800
+ip address 10.105.x.x 255.255.255.248 -corpl3rtr
+description ### CORP L3 Link ### 
+
+interface GigabitEthernet0/0/1.900
+encapsulation dot1Q 900
+ip address 10.105.x.x 255.255.255.248 -guestl3rtr
+description ### GUEST L3 Link ###
+
+interface GigabitEthernet0/0/1.500
+encapsulation dot1Q 500
+ip address 10.105.x.x 255.255.255.248 -mgmtl3rtr
+description ### Mgmt L3 Link ###
+
+interface GigabitEthernet0/0/1.600
+encapsulation dot1Q 600
+ip address 10.105.x.x 255.255.255.248 -vendorl3rtr
+description ### Vendor L3 Link ###
+
+
+ISP 2
+
+interface GigabitEthernet 0/0/1
+no shutdown
+
+interface GigabitEthernet0/0/1.20
+encapsulation dot1Q 20
+ip address 10.105.x.x 255.255.255.248 -corpl3rtr
+description ### CORP L3 Link ### 
+
+interface GigabitEthernet0/0/1.21
+encapsulation dot1Q 21
+ip address 10.105.x.x 255.255.255.248 -guestl3rtr
+description ### GUEST L3 Link ###
+
+interface GigabitEthernet0/0/1.23
+encapsulation dot1Q 23
+ip address 10.105.x.x 255.255.255.248 -mgmtl3rtr
+description ### Mgmt L3 Link ###
+
+interface GigabitEthernet0/0/1.22
+encapsulation dot1Q 22
+ip address 10.105.x.x 255.255.255.248 -vendorl3rtr
+description ### Vendor L3 Link ###
+
+
+
+interface ra gig 0/1/0-3 
+description ###Link_To_Switch###
+switchport mode trunk 
+switchport trunk native vlan 10
+switchport trunk allowed vlan all
+

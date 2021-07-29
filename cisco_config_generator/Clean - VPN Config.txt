@@ -1,0 +1,294 @@
+hostname XXX-XXX-XXX-XXX
+
+
+Vlan 10
+name Managment
+
+Vlan 11
+name Shared-Services
+
+Vlan 12
+name Corporate
+
+Vlan 13
+name GUEST
+
+Vlan 14
+name VD_Mobile
+
+Vlan 120
+name ScaleIT
+
+Vlan 123
+name Secomea
+
+
+aaa new-model
+
+
+aaa authentication login default local
+
+
+no ip domain lookup
+ip domain name REMOVED
+
+crypto key generate rsa general-keys modulus 2048
+
+ip inspect name DEFAULT ftp
+ip inspect name DEFAULT h323
+ip inspect name DEFAULT netshow
+ip inspect name DEFAULT rcmd
+ip inspect name DEFAULT realaudio
+ip inspect name DEFAULT rtsp
+ip inspect name DEFAULT smtp
+ip inspect name DEFAULT sqlnet
+ip inspect name DEFAULT streamworks
+ip inspect name DEFAULT tftp
+ip inspect name DEFAULT tcp
+ip inspect name DEFAULT udp
+ip inspect name DEFAULT vdolive
+ip inspect name DEFAULT icmp
+ip cef
+no ipv6 cef
+
+
+interface GigabitEthernet 9
+ no shutdown
+ description #Uplink to ISP Router#
+ ip address dhcp
+ ip access-group WAN in
+ no ip redirects
+ ip mtu 1492
+ ip nat outside
+ ip inspect DEFAULT out
+ ip virtual-reassembly in
+ duplex auto
+ speed auto
+!
+interface Vlan1
+ no ip address
+ shutdown
+!
+interface Vlan10
+ description #MANAGEMENT#
+ ip address 10.106.x.x 255.255.x.x
+ ip helper-address 10.96.1.52
+ ip helper-address 10.96.0.22
+ ip nat inside
+ ip virtual-reassembly in
+ no autostate
+!
+interface Vlan11
+ description #SHARED INTERFACE#
+ ip address 10.107.x.x 255.255.x.x
+ ip access-group 134 in
+ ip helper-address 10.96.1.52
+ ip helper-address 10.96.0.22
+ no autostate
+!
+interface Vlan12
+ description ##CORP##
+ ip address 10.108.x.x 255.255.x.x
+ ip access-group 132 in
+ ip helper-address 10.96.1.52
+ ip helper-address 10.96.0.22
+ ip nat inside
+ ip virtual-reassembly in
+ ip tcp adjust-mss 1400
+ no autostate
+!
+interface Vlan13
+ description #GUEST-SUBNET#
+ ip address 10.109.x.x 255.255.x.x
+ ip access-group 131 in
+ ip helper-address 10.100.1.52
+ ip nat inside
+ ip virtual-reassembly in
+ no autostate
+!
+interface Vlan14
+ description VD MOBIL
+ ip address 10.110.x.x 255.255.x.x
+ ip access-group 133 in
+ ip helper-address 10.100.1.52
+ ip nat inside
+ ip virtual-reassembly in
+ no autostate
+!
+ interface Vlan 120
+ description #ScaleIT#
+ ip address 10.120.x.x 255.255.x.x
+  ip access-group ScaleIT in
+ ip helper-address 10.96.16.5
+ ip helper-address 10.96.16.21
+ no autostate
+!
+ interface Vlan123
+ description #Secomea#
+ ip address 10.123.x.x 255.255.x.x
+ ip access-group Secomea in
+ ip helper-address 10.96.16.5
+ ip helper-address 10.96.16.21
+ no autostate
+!
+ip forward-protocol nd
+ip http server
+ip http access-class 23
+ip http authentication local
+ip http secure-server
+!
+ip nat translation timeout 300
+ip nat inside source list NAT  interface GigabitEthernet 9 overload
+!
+snmp-server community ctsvdk RW 90
+snmp-server location site Name : Project Id : Address : 
+snmp-server enable traps snmp authentication linkdown linkup coldstart warmstart
+snmp-server enable traps tty
+snmp-server enable traps bgp
+snmp-server enable traps config
+snmp-server enable traps entity
+snmp-server enable traps hsrp
+
+
+
+ip access-list extended NAT 
+deny   ip 10.106.x.x 0.0.x.x host 10.96.1.48
+deny   ip 10.106.x.x 0.0.x.x host 10.96.1.50
+deny   ip 10.106.x.x 0.0.x.x 10.96.0.0 0.0.255.255
+deny   ip 10.107.x.x 0.0.x.x 10.96.0.0 0.0.255.255
+deny   ip 10.108.x.x 0.0.x.x 10.96.0.0 0.0.255.255
+deny   ip 10.108.x.x 0.0.x.x 10.97.0.0 0.0.255.255
+deny   ip 10.108.x.x 0.0.x.x 10.216.0.0 0.0.255.255
+deny   ip 10.108.x.x 0.0.x.x 10.104.0.0 0.0.255.255
+deny   ip 10.109.x.x 0.0.x.x 10.0.0.0 0.255.255.255
+deny   ip 10.109.x.x 0.0.x.x 172.16.0.0 0.0.255.255
+deny   ip 10.109.x.x 0.0.x.x 192.168.0.0 0.0.255.255
+deny   ip 10.109.x.x 0.0.x.x host 10.100.1.52
+deny   ip 10.110.x.x 0.0.x.x 10.0.0.0 0.255.255.255
+deny   ip 10.110.x.x 0.0.x.x 172.16.0.0 0.0.255.255
+deny   ip 10.110.x.x 0.0.x.x 192.168.0.0 0.0.255.255
+deny   ip 10.110.x.x 0.0.x.x host 10.100.1.52
+permit ip 10.106.x.x 0.0.x.x any
+permit ip 10.108.x.x 0.0.x.x any
+permit ip 10.109.x.x 0.0.x.x any
+permit ip 10.110.x.x 0.0.x.x any
+
+ip access-list extended WAN 
+deny   ip 127.0.0.0 0.255.255.255 any
+deny   ip 224.0.0.0 31.255.255.255 any
+deny   ip host 0.0.0.0 any
+deny   icmp any any redirect
+permit ip any any
+
+ip access-list extended SHARED 
+permit udp any any eq bootps
+permit udp any any eq bootpc
+permit ip 10.107.x.x 0.0.x.x host 10.96.1.22
+permit ip 10.107.x.x 0.0.x.x host 10.96.1.23
+permit ip 10.107.x.x 0.0.x.x host 10.96.1.34
+deny   ip 10.107.x.x 0.0.x.x 10.110.x.x 0.0.x.x
+permit ip 10.107.x.x 0.0.x.x any
+
+ip access-list extended CORP 
+permit udp any any eq bootps
+permit udp any any eq bootpc
+deny   ip 10.108.x.x 0.0.x.x 10.109.x.x 0.0.x.x
+deny   ip 10.108.x.x 0.0.x.x 10.110.x.x 0.0.x.x
+permit ip 10.108.x.x 0.0.x.x any
+
+ip access-list extended GUEST
+permit udp any any eq bootps
+permit udp any any eq bootpc
+deny   ip 10.109.x.x 0.0.x.x 10.108.x.x 0.0.x.x
+deny   ip 10.109.x.x 0.0.x.x 10.110.x.x 0.0.x.x
+permit ip 10.109.x.x 0.0.x.x any
+
+ip access-list extended MOBILE 
+permit udp any any eq bootps
+ permit udp any any eq bootpc
+ deny   ip 10.110.x.x 0.0.x.x 10.109.x.x 0.0.x.x
+ deny   ip 10.110.x.x 0.0.x.x 10.108.x.x 0.0.x.x
+ deny   ip 10.110.x.x 0.0.x.x 10.107.x.x 0.0.x.x
+ permit ip 10.110.x.x 0.0.x.x any
+
+ip access-list extended ScaleIT 
+permit udp any any eq bootps
+permit udp any any eq bootpc
+deny ip 10.120.x.x 0.0.x.x 10.108.x.x 0.0.x.x
+deny ip 10.120.x.x 0.0.x.x 10.109.x.x 0.0.x.x
+permit ip 10.120.x.x 0.0.x.x any
+
+ip access-list extended Secomea 
+permit udp any any eq bootps
+permit udp any any eq bootpc
+deny ip 10.123.x.x 0.0.x.x 10.108.x.x 0.0.x.x
+deny ip 10.123.x.x 0.0.x.x 10.109.x.x 0.0.x.x
+deny ip 10.123.x.x 0.0.x.x 10.107.x.x 0.0.x.x
+permit ip 10.123.x.x 0.0.x.x any
+
+
+username REMOVED privilege 15 secret REMOVED
+
+enable secret REMOVED
+!
+line vty 0 4
+ transport input ssh
+ transport output telnet ssh
+line vty 5 15
+ transport input ssh
+!
+clock timezone GMT 1 0
+clock summer-time GMT recurring last Sun Mar 2:00 last Sun Oct 3:00
+ntp server 10.96.1.48 source vlan 10 prefer
+ntp server 10.96.1.49 source vlan 10
+
+!
+!
+!
+
+ip sla 1
+icmp-echo 10.96.1.52 source-interface Vlan10
+threshold 950
+timeout 990
+frequency 1
+history hours-of-statistics-kept 24
+history buckets-kept 60
+history enhanced interval 1800 buckets 100
+
+ip sla 2
+icmp-echo 80.232.126.26 source-interface Vlan10
+threshold 950
+timeout 990
+frequency 1
+history hours-of-statistics-kept 24
+history buckets-kept 60
+history enhanced interval 1800 buckets 100
+
+ip sla 3
+icmp-echo 80.232.126.4 source-interface Vlan10
+threshold 950
+timeout 990
+frequency 1
+history hours-of-statistics-kept 24
+history buckets-kept 60
+history enhanced interval 1800 buckets 100
+
+
+
+ip sla schedule 1 life forever start-time now
+ip sla schedule 2 life forever start-time now
+ip sla schedule 3 life forever start-time now
+ip sla reaction-configuration 1 react timeout threshold-type consecutive 2 action-type trapOnly
+ip sla reaction-configuration 2 react timeout threshold-type consecutive 2 action-type trapOnly
+ip sla reaction-configuration 3 react timeout threshold-type consecutive 2 action-type trapOnly
+ip sla logging traps
+
+
+'Interface'
+
+interface ra gig 0-3
+description ###Link_To_Switch###
+switchport mode trunk
+switchport trunk native vlan 10
+switchport trunk allowed vlan all
+

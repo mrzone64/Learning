@@ -1,0 +1,18 @@
+to create router config: 
+1. Run "Config creation.py"
+2. enter the relevant site details when prompted, confirm with enter
+3. New router config will be generated in the file "rtr config.txt"
+
+General information: 
+
+If you enter wrong information (ip address instead of subnet size for example) you might need to start over.
+ 
+Please make sure you enter the subnet size as CIDR (no forward slash). A mask of 255.255.255.0 means you enter 24
+See wikipedia for more conversions: https://en.wikipedia.org/wiki/Wildcard_mask
+
+Please do not change "VPN Config - Clean", or "MPLS Config - Clean". This will cause issues with the script. 
+
+Previously created config will be written over, make sure to copy the config to project folder after creation. 
+
+Old Scripts folder has backups of older versions. 
+If something does not work try latest one from here

@@ -1,0 +1,145 @@
+hostname XXX-XXX-XXX-XXX
+
+
+interface Vlan10
+name #Management#
+ip address xx.xx.xx.xx xx.xx.xx.xx
+
+ip default-gateway xx.xx.xx.xx
+
+interface vlan 11
+name #Shared#
+
+interface vlan 12 
+name #CORP
+
+interface vlan 13
+name #Guest#
+
+interface vlan 14
+name #VD-MOBILE#
+
+interface vlan 120
+name #ScaleIT#
+
+interface vlan 123
+name #Secomea#
+
+interface vlan 1
+Shutdown
+
+username REMOVED password REMOVED privilege 15
+
+enable password REMOVED
+
+ip ssh server
+ 
+snmp-server location "Site Name: , Project ID: , Address: "
+snmp-server community ctsvdk rw view Default
+snmp-server enable traps
+snmp-server server
+
+clock timezone GMT +1
+clock summer-time web recurring last sun mar 02:00 last sun oct 03:00
+sntp server 10.96.1.48 poll
+sntp server 10.96.1.49 poll
+sntp source-interface vlan 10
+clock source sntp
+sntp unicast client poll
+sntp unicast client enable
+
+sntp unicast client enable
+ip domain name REMOVED
+ip name-server  10.96.1.48 10.96.1.49
+
+lldp run
+
+
+
+###Interface#28port#
+
+interface ra gig 1-26
+no macro auto smartport 
+
+interface ra gig 25-28
+description #Trunk#
+switchport mode trunk
+switchport trunk native vlan 10
+switchport trunk allow vlan all
+
+interface ra gig 11-12, gig 23-24
+description #AP#
+switchport mode trunk
+switchport trunk native vlan 10
+switchport trunk allow vlan all
+lldp receive
+lldp transmit
+
+interface ra gig 10, gig 22
+description #Print#
+switchport mode access
+switchport access vlan 11
+spanning-tree portfast
+no snmp trap link-status
+
+interface ra gig 9, gig 21
+description #Guest# 
+switchport mode access
+switchport access vlan 13
+spanning-tree portfast
+no snmp trap link-status
+
+interface ra gig 1-8, gig 13-19
+description #CORP#
+switchport mode access
+switchport access vlan 12
+spanning-tree portfast
+no snmp trap link-status
+
+interface gig 20
+description #Secomea#
+switchport mode access 
+switchport access vlan 123
+spanning-tree portfast
+
+
+
+###Interface#10port#
+
+interface ra gig 1-10
+no macro auto smartport 
+
+interface ra gig 9-10
+description #Trunk#
+switchport mode trunk
+switchport trunk native vlan 10
+switchport trunk allow vlan all
+
+interface ra gig 7-8
+description #AP#
+switchport mode trunk
+switchport trunk native vlan 10
+switchport trunk allow vlan all
+lldp receive
+lldp transmit
+
+interface ra gig 6
+description #Print#
+switchport mode access
+switchport access vlan 11
+spanning-tree portfast
+no snmp trap link-status
+
+interface ra gig 5
+description #Guest# 
+switchport mode access
+switchport access vlan 13
+spanning-tree portfast
+no snmp trap link-status
+
+interface ra gig 1-4
+description #CORP#
+switchport mode access
+switchport access vlan 12
+spanning-tree portfast
+no snmp trap link-status
